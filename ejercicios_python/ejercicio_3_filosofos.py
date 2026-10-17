@@ -38,20 +38,6 @@ def comer(id):
 def filosofo(id, rondas=3):
     """
     Representa el ciclo de vida de un filósofo: pensar -> tomar tenedores -> comer -> soltar tenedores.
-    
-    CONSIGNA:
-    Si todos los filósofos toman primero su tenedor izquierdo y luego el derecho:
-        izq = id
-        der = (id + 1) % NUM_FILOSOFOS
-    se produce un DEADLOCK (interbloqueo) si todos toman su tenedor izquierdo simultáneamente.
-    
-    TODO PARA EL ESTUDIANTE:
-    Implementa una solución para prevenir el Deadlock rompiendo una de las condiciones de Coffman
-    (por ejemplo, la 'Espera Circular' usando una estrategia asimétrica):
-    - Si el filósofo es el último (id == NUM_FILOSOFOS - 1) o es impar, que tome primero el tenedor
-      DERECHO y luego el IZQUIERDO.
-    - Los demás filósofos toman primero el IZQUIERDO y luego el DERECHO.
-    - Alternativamente, puedes usar un semáforo contador (árbitro/mozo) que permita un máximo de 4 comensales.
     """
     for _ in range(rondas):
         pensar(id)
@@ -63,12 +49,16 @@ def filosofo(id, rondas=3):
         # =========================================================================
         # INICIO TODO: Implementar adquisición y liberación segura de tenedores
         # =========================================================================
-        # PISTA: Implementa la solución asimétrica de Dijkstra (romper Espera Circular)
-        # o utiliza un semáforo árbitro para evitar el interbloqueo (Deadlock).
-        #
-        # TODO: Adquiere los tenedores adyacentes de forma segura, invoca comer(id)
-        # y libera los tenedores:
-        pass
+        # Solución asimétrica: El último filósofo o los de índice impar toman 
+        # primero el tenedor derecho y luego el izquierdo. Los demás al revés.
+        if id == NUM_FILOSOFOS - 1 or id % 2 != 0:
+            with tenedores[tenedor_der]:
+                with tenedores[tenedor_izq]:
+                    comer(id)
+        else:
+            with tenedores[tenedor_izq]:
+                with tenedores[tenedor_der]:
+                    comer(id)
         # =========================================================================
         # FIN TODO
         # =========================================================================
